@@ -21,7 +21,7 @@ Observations:
 - As if adding negatives to max payer to equalize payment
 - Output should pass the assert that input + actions = output, and output has equal value elements
 """
-def unifSplit(a:np.ndarray):
+def unifSplit(a):
     # Prepare variables
     n = len(a)
     result = np.zeros((n,n))
@@ -36,12 +36,24 @@ def unifSplit(a:np.ndarray):
     print(f'DB g: {g}')
     print(f'DB diff: {needs_to_pay}')
 
-    in_flux = a.copy()
+
+
+    in_flux = needs_to_pay.copy()
+    
     for ri, row in enumerate(result):
-        if a[ri] < fairshare: # Only friends that underpaid need to realloc
-            running_total_payout = 0 # Tracks 
+        if in_flux[ri] > 0: # Only friends that underpaid need to realloc
             for ci, col_elem in enumerate(row): # compare with full row in case overpay was before
-                diff = a[ri] - a[ci]
+                if in_flux[ci] < 0: # If needs to be paid
+                    diff = in_flux[ci] + in_flux[ri]
+                    # TODO add a control to ensure that if i owes more than j needs, i pays only what j needs
+                    # TODO add a corollary control to ensure that if i owes less than j needs, i pays all to j
+
+
+    # for ri, row in enumerate(result):
+    #     if a[ri] < fairshare: # Only friends that underpaid need to realloc
+    #         running_total_payout = 0 # Tracks 
+    #         for ci, col_elem in enumerate(row): # compare with full row in case overpay was before
+    #             diff = a[ri] - a[ci]
 
     """
     Logic
@@ -54,4 +66,4 @@ def unifSplit(a:np.ndarray):
 
 in1 = [0,0,0,100]
 
-unifSplit(np.ndarray(in1))
+unifSplit(in1)
