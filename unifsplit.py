@@ -21,6 +21,17 @@ Observations:
 - As if adding negatives to max payer to equalize payment
 - Output should pass the assert that input + actions = output, and output has equal value elements
 """
+
+"""
+Takes actual array (n) and corrections (n,n)
+Output resulting array
+"""
+def applyPayments(actual:np.ndarray, correction:np.ndarray):
+    n = np.shape(actual)[0]
+    assert np.shape(correction) == (n,n), 'Mismatch correction instructions with actual payments.'
+    # TODO
+
+
 def unifSplit(a):
     # Prepare variables
     n = len(a)
@@ -40,6 +51,8 @@ def unifSplit(a):
 
     in_flux = needs_to_pay.copy()
     
+    # Can fill underpayer's payment into first available overpayment hole, because this action always brings us closer to solution (converge)
+
     for ri, row in enumerate(result):
         if in_flux[ri] > 0: # Only friends that underpaid need to realloc
             for ci, col_elem in enumerate(row): # compare with full row in case overpay was before
@@ -48,6 +61,7 @@ def unifSplit(a):
                     # TODO add a control to ensure that if i owes more than j needs, i pays only what j needs
                     # TODO add a corollary control to ensure that if i owes less than j needs, i pays all to j
 
+    # At this point, all differences should be equalized, no more differences between goal and payments + actual
 
     # for ri, row in enumerate(result):
     #     if a[ri] < fairshare: # Only friends that underpaid need to realloc
