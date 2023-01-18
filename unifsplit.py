@@ -24,12 +24,21 @@ Observations:
 
 """
 Takes actual array (n) and corrections (n,n)
-Output resulting array
+    Interpret corrections c_ij as "friend i must pay friend j c_ij for fairness"
+    Expect corrections to be positive.
+Output resulting array.
 """
 def applyPayments(actual:np.ndarray, correction:np.ndarray):
     n = np.shape(actual)[0]
     assert np.shape(correction) == (n,n), 'Mismatch correction instructions with actual payments.'
-    # TODO
+    result = actual.copy()
+    for i, row in enumerate(correction):
+        for j, c_ij in enumerate(row):
+            if c_ij > 0:
+                result[i] += c_ij
+                result[j] -= c_ij
+    # result is fair at this point; generally, result = actual + corrections    
+    return result
 
 
 def unifSplit(a):
@@ -78,6 +87,13 @@ def unifSplit(a):
     pass 
 
 
-in1 = [0,0,0,100]
+# in1 = [0,0,0,100]
 
-unifSplit(in1)
+# unifSplit(in1)
+
+#  > (0,0,100,0): [[0,0,25,0],[0,0,25,0],[0,0,0,0],[0,0,25,0]]
+
+a_in = np.array([0,0,100,0])
+a_c = np.array([[0,0,25,0],[0,0,25,0],[0,0,0,0],[0,0,25,0]])
+a_out = applyPayments(actual=a_in, correction=a_c)
+print(f'initial payments: {a_in}, fair payments: {a_out}')
