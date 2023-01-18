@@ -27,6 +27,8 @@ Takes actual array (n) and corrections (n,n)
     Interpret corrections c_ij as "friend i must pay friend j c_ij for fairness"
     Expect corrections to be positive.
 Output resulting array.
+=========
+Used to validate solutions, actual + correction -> result, where uniform split result = all entries equal
 """
 def applyPayments(actual:np.ndarray, correction:np.ndarray):
     n = np.shape(actual)[0]
@@ -41,34 +43,54 @@ def applyPayments(actual:np.ndarray, correction:np.ndarray):
     return result
 
 
-def unifSplit(a):
+def unifSplit(actual):
     # Prepare variables
-    n = len(a)
-    result = np.zeros((n,n))
-    total_spent = sum(a)
+    n = len(actual)
+    correction = np.zeros((n,n))
+
+    total_spent = sum(actual)
     fairshare = total_spent / n 
     goal = [fairshare for i in range(n)]
     g = np.array(goal)
 
-    needs_to_pay = g - a # Positive: needs to pay that much, negative: overpayed by that much 
+    diff = g - actual # Positive: needs to pay that much, negative: overpayed by that much 
 
-    print(f'DB a: {a}')
+    print(f'DB a: {actual}')
     print(f'DB g: {g}')
-    print(f'DB diff: {needs_to_pay}')
+    print(f'DB diff: {diff}')
+
+    # in_flux = diff.copy()
+
+    # TODO ADD while to loop through needs to pay
+    for i, d_i in enumerate(diff):
+        if d_i > 0: 
+            to_realloc = d_i
+            while(to_realloc > 0): # Loop through needs to be paid
+                for j in range(i, n):
+                    d_j = diff[j]
+                    if d_j < 0: # j is a hole to be filled
+                        curr_pit = d_j
+                        # Logic to see how much to fill vs how much is left
+
+            # Find where it should be reallocated
 
 
 
-    in_flux = needs_to_pay.copy()
-    
+            # for j in range(i, n):
+            #     if diff[j] < 0: # This is a spot that needs filling
+
+
+
+
     # Can fill underpayer's payment into first available overpayment hole, because this action always brings us closer to solution (converge)
 
-    for ri, row in enumerate(result):
-        if in_flux[ri] > 0: # Only friends that underpaid need to realloc
-            for ci, col_elem in enumerate(row): # compare with full row in case overpay was before
-                if in_flux[ci] < 0: # If needs to be paid
-                    diff = in_flux[ci] + in_flux[ri]
-                    # TODO add a control to ensure that if i owes more than j needs, i pays only what j needs
-                    # TODO add a corollary control to ensure that if i owes less than j needs, i pays all to j
+    # for ri, row in enumerate(correction):
+    #     if in_flux[ri] > 0: # Only friends that underpaid need to realloc
+    #         for ci, col_elem in enumerate(row): # compare with full row in case overpay was before
+    #             if in_flux[ci] < 0: # If needs to be paid
+    #                 diff = in_flux[ci] + in_flux[ri]
+    #                 # TODO add a control to ensure that if i owes more than j needs, i pays only what j needs
+    #                 # TODO add a corollary control to ensure that if i owes less than j needs, i pays all to j
 
     # At this point, all differences should be equalized, no more differences between goal and payments + actual
 
@@ -87,13 +109,12 @@ def unifSplit(a):
     pass 
 
 
-# in1 = [0,0,0,100]
+in1 = [0,0,0,100]
 
-# unifSplit(in1)
+unifSplit(in1)
 
-#  > (0,0,100,0): [[0,0,25,0],[0,0,25,0],[0,0,0,0],[0,0,25,0]]
 
-a_in = np.array([0,0,100,0])
-a_c = np.array([[0,0,25,0],[0,0,25,0],[0,0,0,0],[0,0,25,0]])
-a_out = applyPayments(actual=a_in, correction=a_c)
-print(f'initial payments: {a_in}, fair payments: {a_out}')
+# a_in = np.array([0,0,100,0])
+# a_c = np.array([[0,0,25,0],[0,0,25,0],[0,0,0,0],[0,0,25,0]])
+# a_out = applyPayments(actual=a_in, correction=a_c)
+# print(f'initial payments: {a_in}, fair payments: {a_out}')
