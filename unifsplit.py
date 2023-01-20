@@ -42,7 +42,9 @@ def applyPayments(actual:np.ndarray, correction:np.ndarray):
     # result is fair at this point; generally, result = actual + corrections    
     return result
 
-
+'''
+Uniformly splits the spending from actual to result, outputs corrections needed.
+'''
 def unifSplit(actual):
     # Prepare variables
     n = len(actual)
@@ -59,18 +61,40 @@ def unifSplit(actual):
     print(f'DB g: {g}')
     print(f'DB diff: {diff}')
 
-    # in_flux = diff.copy()
-
-    # TODO ADD while to loop through needs to pay
+    # Modifies diff
     for i, d_i in enumerate(diff):
-        if d_i > 0: 
-            to_realloc = d_i
-            while(to_realloc > 0): # Loop through needs to be paid
-                for j in range(i, n):
-                    d_j = diff[j]
-                    if d_j < 0: # j is a hole to be filled
-                        curr_pit = d_j
-                        # Logic to see how much to fill vs how much is left
+        # while(d_i > 0): # Loop through needs to pay i
+            # print(f'  DB i to be paid: {i}')
+            # print(f'  DB diff: {diff}')
+        for j, d_j in enumerate(diff): # TODO this should be entire array, in case need to pay is last
+            if d_j < 0 and d_i > 0: # j is a hole to be filled
+                # Logic to see how much to fill vs how much is left
+                if abs(d_i) < abs(d_j): # Pit (dj) greater than amount (di)
+                    diff[j] += d_i
+                    correction[i][j] = d_i
+                    diff[i] = 0
+                else: # Amount (di) fills pit (dj), maybe with leftover
+                    diff[i] -= d_j
+                    correction[i][j] = d_j
+                    diff[j] = 0
+
+    print(f'DB diff: {diff}')
+    print(f'DB corr: {correction}')
+
+    return correction
+
+    # # TODO ADD while to loop through needs to pay
+    # for i, d_i in enumerate(diff):
+    #     if d_i > 0: 
+    #         to_realloc = d_i
+    #         while(to_realloc > 0): # Loop through needs to be paid
+    #             for j, d_j in enumerate(diff): # TODO this should be entire array, in case need to pay is last
+    #                 if d_j < 0: # j is a hole to be filled
+    #                     curr_pit = d_j
+    #                     # Logic to see how much to fill vs how much is left
+    #                     if to_realloc < curr_pit:
+    #                         curr_pit += to_realloc
+    #                         to_realloc = 0
 
             # Find where it should be reallocated
 
@@ -106,7 +130,6 @@ def unifSplit(actual):
     """
 
     # Return as 2d array? elements are how much each 
-    pass 
 
 
 in1 = [0,0,0,100]
