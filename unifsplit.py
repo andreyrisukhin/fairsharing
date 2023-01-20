@@ -66,17 +66,19 @@ def unifSplit(actual):
         # while(d_i > 0): # Loop through needs to pay i
             # print(f'  DB i to be paid: {i}')
             # print(f'  DB diff: {diff}')
-        for j, d_j in enumerate(diff): # TODO this should be entire array, in case need to pay is last
-            if d_j < 0 and d_i > 0: # j is a hole to be filled
-                # Logic to see how much to fill vs how much is left
-                if abs(d_i) < abs(d_j): # Pit (dj) greater than amount (di)
-                    diff[j] += d_i
-                    correction[i][j] = d_i
-                    diff[i] = 0
-                else: # Amount (di) fills pit (dj), maybe with leftover
-                    diff[i] -= d_j
-                    correction[i][j] = d_j
-                    diff[j] = 0
+        if d_i > 0:
+            for j, d_j in enumerate(diff): # TODO this should be entire array, in case need to pay is last
+                if d_j < 0: # j is a hole to be filled
+                    # Logic to see how much to fill vs how much is left
+                    if abs(d_i) < abs(d_j): # Pit (dj) greater than amount (di)
+                        diff[j] += d_i
+                        correction[i][j] = d_i
+                        diff[i] = 0
+                    else: # Amount (di) fills pit (dj), maybe with leftover
+                        pit_size = d_j
+                        diff[i] -= -1*pit_size
+                        correction[i][j] = -1*pit_size
+                        diff[j] = 0
 
     print(f'DB diff: {diff}')
     print(f'DB corr: {correction}')
