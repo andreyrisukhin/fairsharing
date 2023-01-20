@@ -65,6 +65,10 @@ def unifSplit(actual:np.ndarray):
     goal = [fairshare for i in range(n)]
     g = np.array(goal)
     diff = g - actual # Positive: needs to pay that much, negative: overpayed by that much 
+
+    print(f'DB diff: {diff}')
+    # TODO each row of corrections should sum to either zero or the same amount
+
     # Solving (Modifies diff)
     for i, d_i in enumerate(diff):
         if d_i > 0:
@@ -82,7 +86,7 @@ def unifSplit(actual:np.ndarray):
                         diff[j] = 0
     # Check that the correction results in the correct answer
     corr_out = applyPayments(actual=actual, correction=correction)
-    assert np.array_equiv(goal, corr_out), f'Error: The calculated correction did not result in the goal.'
+    assert np.array_equal(goal, corr_out), f'Error: The calculated correction {corr_out} did not result in the goal {goal}.'
     
     return correction
 
