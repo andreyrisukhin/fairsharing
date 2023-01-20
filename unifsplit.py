@@ -56,9 +56,11 @@ def applyPayments(actual:np.ndarray, correction:np.ndarray):
 '''
 Uniformly splits the spending from actual to result, outputs corrections needed.
 '''
-def unifSplit(actual):
+def unifSplit(actual:np.ndarray):
     # Prepare variables
-    n = len(actual)
+    print(f'DB input: {actual}, len(input): {len(actual)}')
+
+    n = np.size(actual) # len(actual)
     correction = np.zeros((n,n))
 
     total_spent = sum(actual)
@@ -145,10 +147,13 @@ def unifSplit(actual):
     # Return as 2d array? elements are how much each 
 
 # Testing!
-for in_i, corr_i in tests:
-    pass 
-
-
+for in_true, corr_true in tests:
+    # print(f'in_true: {in_true}')
+    # print(f'corr_true: {corr_true}')
+    in_true_np = np.array(in_true)
+    # print(f'')
+    corr_calc = unifSplit(in_true_np)
+    assert np.array_equal(corr_calc,corr_true), f"Test failed: expected corrections: {corr_true}, calculated: {corr_calc}"
 
 # in1 = [0,0,0,100]
 
