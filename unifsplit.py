@@ -5,6 +5,17 @@ Return the directions for who transfers how much money to whom, as if all paid e
 
 import numpy as np
 
+# Test format: list of (in, corrections). Assume uniform splits!
+tests = [
+    ([0,0,100,0], [[0,0,25,0],[0,0,25,0],[0,0,0,0],[0,0,25,0]]),
+    ([0,10,0,30], [[0,0,0,10],[0,0,0,0],[0,0,0,10],[0,0,0,0]]),
+    ([0,2], [[0,1],[0,0]]),
+    ([1,2,3], [[0,0,1],[0,0,0],[0,0,0]]),
+    ([0,3,3], [[0,1,1],[0,0,0],[0,0,0]]),
+    ([0,0,1,7], [[0,0,0,2],[0,0,0,2],[0,0,0,1],[0,0,0,0]]),
+    ([2,0], [[0,0],[1,0]])
+]
+
 """
 Examples:
 > (0,0,100,0): [[0,0,25,0],[0,0,25,0],[0,0,0,0],[0,0,25,0]]
@@ -13,7 +24,7 @@ Examples:
 > (1,2,3): [[0,0,1],[0,0,0],[0,0,0]]
 > (0,3,3): [[0,1,1],[0,0,0],[0,0,0]]  # Case when an underpayer needs to repay 2+ people
 > (0,0,1,7): [[0,0,0,2],[0,0,0,2],[0,0,0,1],[0,0,0,0]] # Case when an underpayer already paid an amount
-> () # Case when max payer is at front
+> (2,0): [[0,0],[1,0]] # Case when max payer is at front
 
 Observations:
 - Diagonal is zero
@@ -133,11 +144,18 @@ def unifSplit(actual):
 
     # Return as 2d array? elements are how much each 
 
+# Testing!
+for in_i, corr_i in tests:
+    pass 
 
-in1 = [0,0,0,100]
 
-unifSplit(in1)
 
+# in1 = [0,0,0,100]
+
+# corr1 = unifSplit(in1)
+# out1 = applyPayments(in1, corr1)
+
+# print(f'Out 1: {out1}')
 
 # a_in = np.array([0,0,100,0])
 # a_c = np.array([[0,0,25,0],[0,0,25,0],[0,0,0,0],[0,0,25,0]])
