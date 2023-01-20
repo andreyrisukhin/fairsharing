@@ -58,27 +58,15 @@ Uniformly splits the spending from actual to result, outputs corrections needed.
 '''
 def unifSplit(actual:np.ndarray):
     # Prepare variables
-    print(f'DB input: {actual}, len(input): {len(actual)}')
-
     n = np.size(actual) # len(actual)
     correction = np.zeros((n,n))
-
     total_spent = sum(actual)
     fairshare = total_spent / n 
     goal = [fairshare for i in range(n)]
     g = np.array(goal)
-
     diff = g - actual # Positive: needs to pay that much, negative: overpayed by that much 
-
-    print(f'DB a: {actual}')
-    print(f'DB g: {g}')
-    print(f'DB diff: {diff}')
-
-    # Modifies diff
+    # Solving (Modifies diff)
     for i, d_i in enumerate(diff):
-        # while(d_i > 0): # Loop through needs to pay i
-            # print(f'  DB i to be paid: {i}')
-            # print(f'  DB diff: {diff}')
         if d_i > 0:
             for j, d_j in enumerate(diff): # TODO this should be entire array, in case need to pay is last
                 if d_j < 0: # j is a hole to be filled
@@ -92,77 +80,20 @@ def unifSplit(actual:np.ndarray):
                         diff[i] -= -1*pit_size
                         correction[i][j] = -1*pit_size
                         diff[j] = 0
-
-    print(f'DB diff: {diff}')
-    print(f'DB corr: {correction}')
-
+    # Check that the correction results in the correct answer
+    corr_out = applyPayments(actual=actual, correction=correction)
+    assert np.array_equiv(goal, corr_out), f'Error: The calculated correction did not result in the goal.'
+    
     return correction
-
-    # # TODO ADD while to loop through needs to pay
-    # for i, d_i in enumerate(diff):
-    #     if d_i > 0: 
-    #         to_realloc = d_i
-    #         while(to_realloc > 0): # Loop through needs to be paid
-    #             for j, d_j in enumerate(diff): # TODO this should be entire array, in case need to pay is last
-    #                 if d_j < 0: # j is a hole to be filled
-    #                     curr_pit = d_j
-    #                     # Logic to see how much to fill vs how much is left
-    #                     if to_realloc < curr_pit:
-    #                         curr_pit += to_realloc
-    #                         to_realloc = 0
-
-            # Find where it should be reallocated
-
-
-
-            # for j in range(i, n):
-            #     if diff[j] < 0: # This is a spot that needs filling
-
-
-
-
-    # Can fill underpayer's payment into first available overpayment hole, because this action always brings us closer to solution (converge)
-
-    # for ri, row in enumerate(correction):
-    #     if in_flux[ri] > 0: # Only friends that underpaid need to realloc
-    #         for ci, col_elem in enumerate(row): # compare with full row in case overpay was before
-    #             if in_flux[ci] < 0: # If needs to be paid
-    #                 diff = in_flux[ci] + in_flux[ri]
-    #                 # TODO add a control to ensure that if i owes more than j needs, i pays only what j needs
-    #                 # TODO add a corollary control to ensure that if i owes less than j needs, i pays all to j
-
-    # At this point, all differences should be equalized, no more differences between goal and payments + actual
-
-    # for ri, row in enumerate(result):
-    #     if a[ri] < fairshare: # Only friends that underpaid need to realloc
-    #         running_total_payout = 0 # Tracks 
-    #         for ci, col_elem in enumerate(row): # compare with full row in case overpay was before
-    #             diff = a[ri] - a[ci]
-
-    """
-    Logic
-    For each    
-    """
-
-    # Return as 2d array? elements are how much each 
 
 # Testing!
 for in_true, corr_true in tests:
-    # print(f'in_true: {in_true}')
-    # print(f'corr_true: {corr_true}')
     in_true_np = np.array(in_true)
-    # print(f'')
     corr_calc = unifSplit(in_true_np)
     assert np.array_equal(corr_calc,corr_true), f"Test failed: expected corrections: {corr_true}, calculated: {corr_calc}"
 
-# in1 = [0,0,0,100]
+VC_in = np.array([301.9,0,181.8,0])
+VC_corr = unifSplit(VC_in)
+VC_out = applyPayments(VC_in, VC_corr)
 
-# corr1 = unifSplit(in1)
-# out1 = applyPayments(in1, corr1)
-
-# print(f'Out 1: {out1}')
-
-# a_in = np.array([0,0,100,0])
-# a_c = np.array([[0,0,25,0],[0,0,25,0],[0,0,0,0],[0,0,25,0]])
-# a_out = applyPayments(actual=a_in, correction=a_c)
-# print(f'initial payments: {a_in}, fair payments: {a_out}')
+print(f' initial payments: {VC_in} \n corrections: \n{VC_corr} \n fair payments: {VC_out}')
