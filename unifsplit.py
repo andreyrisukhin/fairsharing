@@ -65,6 +65,8 @@ def unifSplit(actual:np.ndarray):
     goal = [fairshare for i in range(n)]
     goal = np.array(goal)
     diff = goal - actual # Positive: needs to pay that much, negative: overpayed by that much 
+    # limit = fairshare - actual # Maximum amount each person (row) can spend
+    # print(f'Limit: {limit}')
 
     # print(f'DB diff: {diff}')
     # TODO each row of corrections should sum to either zero or the same amount
@@ -74,30 +76,39 @@ def unifSplit(actual:np.ndarray):
 
 
     # Solving (Modifies diff)
-    for i, d_i in enumerate(diff):
-        if d_i > 0:
-            for j, d_j in enumerate(diff): # TODO this should be entire array, in case need to pay is last
-                if d_j < 0: # j is a hole to be filled
+    for i in range(len(diff)):
+        # d_i = diff[i]
+        if diff[i] > 0:
+            for j in range(len(diff)): # TODO this should be entire array, in case need to pay is last
+                
+                # TODO maybe the problem is that d_i is fixed for the whole loop, but should be by reference?
+                # d_j = diff[j]
+
+                if diff[j] < 0: # j is a hole to be filled
                     # Logic to see how much to fill vs how much is left
-                    if abs(d_i) < abs(d_j): # Pit (dj) greater than amount (di)
-                        diff[j] += d_i
-                        correction[i][j] = d_i
+                    if abs(diff[i]) < abs(diff[j]): # Pit (dj) greater than amount (di)
+                        diff[j] += diff[i]
+                        correction[i][j] = diff[i]
                         diff[i] = 0
                     else: # Amount (di) fills pit (dj), maybe with leftover
-                        pit_size = d_j
+                        pit_size = diff[j]
                         diff[i] -= -1*pit_size
                         correction[i][j] = -1*pit_size
                         diff[j] = 0
+    # TODO an assert to ensure it's fair distribution? remove future d_i vs diff[i], var vs ref issue?
+
     # Check that the correction results in the correct answer
     corr_out = applyPayments(actual=actual, correction=correction)
-    assert np.allclose(goal, corr_out), f'Error: The calculated correction {corr_out} did not result in the goal {goal}.'
+    assert np.allclose(goal, corr_out), f'Error: The calculated output {corr_out} did not result in the goal {goal}.'
     
+
     return correction
 
 # Testing!
 for in_true, corr_true in tests:
     in_true_np = np.array(in_true)
     corr_calc = unifSplit(in_true_np)
+    print(f'corr_calc: \n{corr_calc}')
     assert np.array_equal(corr_calc,corr_true), f"Test failed: expected corrections: {corr_true}, calculated: {corr_calc}"
 
 VC_in = np.array([301.9,0,181.8,0])
@@ -105,3 +116,5 @@ VC_corr = unifSplit(VC_in)
 VC_out = applyPayments(VC_in, VC_corr)
 
 print(f' initial payments: {VC_in} \n corrections: \n{VC_corr} \n fair payments: {VC_out}')
+
+print(unifSplit(np.array([1,2,3,4])))
