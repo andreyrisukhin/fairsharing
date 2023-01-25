@@ -63,11 +63,15 @@ def unifSplit(actual:np.ndarray):
     total_spent = sum(actual)
     fairshare = total_spent / n 
     goal = [fairshare for i in range(n)]
-    g = np.array(goal)
-    diff = g - actual # Positive: needs to pay that much, negative: overpayed by that much 
+    goal = np.array(goal)
+    diff = goal - actual # Positive: needs to pay that much, negative: overpayed by that much 
 
-    print(f'DB diff: {diff}')
+    # print(f'DB diff: {diff}')
     # TODO each row of corrections should sum to either zero or the same amount
+    # All positive idxs of diff should pay the same amount NOPE not true
+    # All equal positive values of diff should pay the same amount
+    # Aha. My solution assumes there is enough underpayment to the payment... wait, maybe untrue
+
 
     # Solving (Modifies diff)
     for i, d_i in enumerate(diff):
@@ -86,7 +90,7 @@ def unifSplit(actual:np.ndarray):
                         diff[j] = 0
     # Check that the correction results in the correct answer
     corr_out = applyPayments(actual=actual, correction=correction)
-    assert np.array_equal(goal, corr_out), f'Error: The calculated correction {corr_out} did not result in the goal {goal}.'
+    assert np.allclose(goal, corr_out), f'Error: The calculated correction {corr_out} did not result in the goal {goal}.'
     
     return correction
 
