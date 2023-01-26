@@ -13,7 +13,9 @@ tests = [
     ([1,2,3], [[0,0,1],[0,0,0],[0,0,0]]),
     ([0,3,3], [[0,1,1],[0,0,0],[0,0,0]]),
     ([0,0,1,7], [[0,0,0,2],[0,0,0,2],[0,0,0,1],[0,0,0,0]]),
-    ([2,0], [[0,0],[1,0]])
+    ([2,0], [[0,0],[1,0]]),
+    ([1,2,3,4], [[0,0,0.5,1],[0,0,0,0.5],[0,0,0,0],[0,0,0,0]]),
+    ([301.9,0,181.8,0], [[0,0,0,0],[120.925,0,0,0,],[0,0,0,0],[60.05,0,60.875,0]])
 ]
 
 """
@@ -45,16 +47,12 @@ def applyPayments(actual:np.ndarray, correction:np.ndarray):
     n = np.shape(actual)[0]
     assert np.shape(correction) == (n,n), 'Mismatch correction instructions with actual payments.'
     result = actual.copy()
-    # print(correction)
-    # print(f'result element type: {type(result[0])}')
-    # print(f'corr element type: {type(correction[0][0])}')
     for i, row in enumerate(correction):
         for j, c_ij in enumerate(row):
             # print(f'  {c_ij}')
             if c_ij > 0:
                 result[i] += c_ij
                 result[j] -= c_ij
-            # print(result)
     # result is fair at this point; generally, result = actual + corrections    
     return result
 
@@ -64,7 +62,6 @@ Uniformly splits the spending from actual to result, outputs corrections needed.
 def unifSplit(actual:np.ndarray):
     # Prepare variables
     actual = np.array(actual, dtype=np.float64)
-
     n = np.size(actual) # len(actual)
     correction = np.zeros((n,n))
     total_spent = sum(actual)
@@ -72,25 +69,11 @@ def unifSplit(actual:np.ndarray):
     goal = [fairshare for i in range(n)]
     goal = np.array(goal)
     diff = goal - actual # Positive: needs to pay that much, negative: overpayed by that much 
-    # limit = fairshare - actual # Maximum amount each person (row) can spend
-    # print(f'Limit: {limit}')
-    # print(f'Fairshare {fairshare}')
-    # print(f'DB diff: {diff}')
-    # TODO each row of corrections should sum to either zero or the same amount
-    # All positive idxs of diff should pay the same amount NOPE not true
-    # All equal positive values of diff should pay the same amount
-    # Aha. My solution assumes there is enough underpayment to the payment... wait, maybe untrue
-
-
     # Solving (Modifies diff)
     for i in range(len(diff)):
         # d_i = diff[i]
         if diff[i] > 0:
             for j in range(len(diff)): # TODO this should be entire array, in case need to pay is last
-                
-                # TODO maybe the problem is that d_i is fixed for the whole loop, but should be by reference?
-                # d_j = diff[j]
-
                 if diff[j] < 0: # j is a hole to be filled
                     # Logic to see how much to fill vs how much is left
                     if abs(diff[i]) < abs(diff[j]): # Pit (dj) greater than amount (di)
@@ -104,7 +87,6 @@ def unifSplit(actual:np.ndarray):
                         diff[j] = 0
                     # print(f'  {diff}')
     # TODO an assert to ensure it's fair distribution? remove future d_i vs diff[i], var vs ref issue?
-    # print(f'{correction}')
     # Check that the correction results in the correct answer
     corr_out = applyPayments(actual=actual, correction=correction)
     assert np.allclose(goal, corr_out), f'Error: The calculated output {corr_out} did not result in the goal {goal}.'
@@ -116,16 +98,7 @@ def unifSplit(actual:np.ndarray):
 for in_true, corr_true in tests:
     in_true_np = np.array(in_true)
     corr_calc = unifSplit(in_true_np)
-    # print(f'corr_calc: \n{corr_calc}')
-    assert np.array_equal(corr_calc,corr_true), f"Test failed: expected corrections: {corr_true}, calculated: {corr_calc}"
-
-# VC_in = np.array([301.9,0,181.8,0])
-# VC_corr = unifSplit(VC_in)
-# VC_out = applyPayments(VC_in, VC_corr)
-
-# print(f' initial payments: {VC_in} \n corrections: \n{VC_corr} \n fair payments: {VC_out}')
-
-print(unifSplit(np.array([1,2,3,4])))
+    assert np.allclose(corr_calc,corr_true), f"Test failed: expected corrections: {corr_true}, calculated: {corr_calc}"
 
 # TODO take in an itemized list of transactions, and support deletion/removal of an item for a person?
 # > For example, if a friend did not eat at all at a restaurant, the uniform split assumption is unfair
