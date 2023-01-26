@@ -91,7 +91,6 @@ def unifSplit(actual:np.ndarray):
     corr_out = applyPayments(actual=actual, correction=correction)
     assert np.allclose(goal, corr_out), f'Error: The calculated output {corr_out} did not result in the goal {goal}.'
     
-
     return correction
 
 # Testing!
