@@ -45,11 +45,16 @@ def applyPayments(actual:np.ndarray, correction:np.ndarray):
     n = np.shape(actual)[0]
     assert np.shape(correction) == (n,n), 'Mismatch correction instructions with actual payments.'
     result = actual.copy()
+    # print(correction)
+    # print(f'result element type: {type(result[0])}')
+    # print(f'corr element type: {type(correction[0][0])}')
     for i, row in enumerate(correction):
         for j, c_ij in enumerate(row):
+            # print(f'  {c_ij}')
             if c_ij > 0:
                 result[i] += c_ij
                 result[j] -= c_ij
+            # print(result)
     # result is fair at this point; generally, result = actual + corrections    
     return result
 
@@ -58,6 +63,8 @@ Uniformly splits the spending from actual to result, outputs corrections needed.
 '''
 def unifSplit(actual:np.ndarray):
     # Prepare variables
+    actual = np.array(actual, dtype=np.float64)
+
     n = np.size(actual) # len(actual)
     correction = np.zeros((n,n))
     total_spent = sum(actual)
@@ -91,12 +98,13 @@ def unifSplit(actual:np.ndarray):
                         correction[i][j] = diff[i]
                         diff[i] = 0
                     else: # Amount (di) fills pit (dj), maybe with leftover
-                        pit_size = diff[j]
-                        diff[i] -= -1*pit_size
-                        correction[i][j] = -1*pit_size
+                        pit_size = abs(diff[j])
+                        diff[i] -= pit_size
+                        correction[i][j] = pit_size
                         diff[j] = 0
+                    # print(f'  {diff}')
     # TODO an assert to ensure it's fair distribution? remove future d_i vs diff[i], var vs ref issue?
-
+    # print(f'{correction}')
     # Check that the correction results in the correct answer
     corr_out = applyPayments(actual=actual, correction=correction)
     assert np.allclose(goal, corr_out), f'Error: The calculated output {corr_out} did not result in the goal {goal}.'
@@ -111,11 +119,11 @@ for in_true, corr_true in tests:
     # print(f'corr_calc: \n{corr_calc}')
     assert np.array_equal(corr_calc,corr_true), f"Test failed: expected corrections: {corr_true}, calculated: {corr_calc}"
 
-VC_in = np.array([301.9,0,181.8,0])
-VC_corr = unifSplit(VC_in)
-VC_out = applyPayments(VC_in, VC_corr)
+# VC_in = np.array([301.9,0,181.8,0])
+# VC_corr = unifSplit(VC_in)
+# VC_out = applyPayments(VC_in, VC_corr)
 
-print(f' initial payments: {VC_in} \n corrections: \n{VC_corr} \n fair payments: {VC_out}')
+# print(f' initial payments: {VC_in} \n corrections: \n{VC_corr} \n fair payments: {VC_out}')
 
 print(unifSplit(np.array([1,2,3,4])))
 
