@@ -67,7 +67,7 @@ def unifSplit(actual:np.ndarray):
     diff = goal - actual # Positive: needs to pay that much, negative: overpayed by that much 
     # limit = fairshare - actual # Maximum amount each person (row) can spend
     # print(f'Limit: {limit}')
-
+    # print(f'Fairshare {fairshare}')
     # print(f'DB diff: {diff}')
     # TODO each row of corrections should sum to either zero or the same amount
     # All positive idxs of diff should pay the same amount NOPE not true
@@ -108,7 +108,7 @@ def unifSplit(actual:np.ndarray):
 for in_true, corr_true in tests:
     in_true_np = np.array(in_true)
     corr_calc = unifSplit(in_true_np)
-    print(f'corr_calc: \n{corr_calc}')
+    # print(f'corr_calc: \n{corr_calc}')
     assert np.array_equal(corr_calc,corr_true), f"Test failed: expected corrections: {corr_true}, calculated: {corr_calc}"
 
 VC_in = np.array([301.9,0,181.8,0])
@@ -118,3 +118,8 @@ VC_out = applyPayments(VC_in, VC_corr)
 print(f' initial payments: {VC_in} \n corrections: \n{VC_corr} \n fair payments: {VC_out}')
 
 print(unifSplit(np.array([1,2,3,4])))
+
+# TODO take in an itemized list of transactions, and support deletion/removal of an item for a person?
+# > For example, if a friend did not eat at all at a restaurant, the uniform split assumption is unfair
+
+# Keep thinking; what is the fairest adjusted calculation of 1 of n friends doesn't participate in an activity?
