@@ -99,6 +99,8 @@ for in_true, corr_true in tests:
     corr_calc = unifSplit(in_true_np)
     assert np.allclose(corr_calc,corr_true), f"Test failed: expected corrections: {corr_true}, calculated: {corr_calc}"
 
+print(unifSplit(np.array([10,0,1,0])))
+
 # TODO take in an itemized list of transactions, and support deletion/removal of an item for a person?
 # > For example, if a friend did not eat at all at a restaurant, the uniform split assumption is unfair
 
